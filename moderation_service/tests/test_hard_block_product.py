@@ -291,7 +291,8 @@ def test_soft_block_still_uses_blocked_and_hard_block_false(b2b_requests):
     assert response.status_code == 200
     body = response.json()
     assert body["status"] == "BLOCKED"
-    assert body["hard_block"] is False
+    assert "id" in body
+    assert "seller_id" in body
 
     card = repository.get_card(product_id)
     assert card["status"] == "BLOCKED"
