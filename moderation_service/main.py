@@ -533,13 +533,6 @@ class ProductEventRepository:
                 ],
             )
 
-            response = self._blocked_response(
-                product_id=row["product_id"],
-                reason=reason,
-                moderator_comment=moderator_comment,
-                field_reports=field_reports,
-                hard_block=reason.hard_block,
-            )
             send_moderation_event_to_b2b(
                 product_id=row["product_id"],
                 moderator_id=moderator_id,
@@ -548,8 +541,12 @@ class ProductEventRepository:
                 field_reports=field_reports,
                 hard_block=reason.hard_block,
             )
+            updated_row = connection.execute(
+                "SELECT * FROM product_moderation WHERE id = ?",
+                (row["id"],),
+            ).fetchone()
             connection.commit()
-            return response
+            return self._ticket_response_from_row(updated_row)
         except Exception:
             connection.rollback()
             raise
